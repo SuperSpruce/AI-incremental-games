@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Clicker - The Incremental Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ecf0f1;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            grid-column: 1 / -1;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #2ecc71;
+        }
+
+        .stat-value.gold {
+            color: #f39c12;
+        }
+
+        .stat-value.purple {
+            color: #9b59b6;
+        }
+
+        .stat-value.cyan {
+            color: #1abc9c;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 20px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #2980b9, #1e5f8f);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .main-button {
+            grid-column: 1 / -1;
+            padding: 40px 20px;
+            font-size: 2em;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            margin-bottom: 20px;
+        }
+
+        .main-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #c0392b, #922b21);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.5);
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 0.9em;
+            font-weight: 700;
+            color: #f39c12;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .upgrade-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+            font-size: 0.9em;
+        }
+
+        .upgrade-item.purchased {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .upgrade-name {
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+
+        .upgrade-desc {
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        .cost {
+            color: #f39c12;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .achievement-grid {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .achievement {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .achievement.unlocked {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+        }
+
+        .achievement-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .achievement-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .achievement-desc {
+            font-size: 0.75em;
+            opacity: 0.7;
+        }
+
+        .prestige-button {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            font-size: 1.1em;
+            padding: 20px 15px;
+        }
+
+        .prestige-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #8e44ad, #7d3c98);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.5);
+        }
+
+        .prestige-button.available {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(155, 89, 182, 0); }
+        }
+
+        .generator-item {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border: 1px solid #3498db;
+        }
+
+        .generator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .generator-name {
+            font-weight: bold;
+        }
+
+        .generator-count {
+            background: rgba(52, 152, 219, 0.3);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+
+        .generator-production {
+            font-size: 0.85em;
+            opacity: 0.8;
+            color: #2ecc71;
+        }
+
+        .footer {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .footer button {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1e3c72;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #3498db;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #3498db;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #ecf0f1;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .warning {
+            color: #f39c12;
+        }
+
+        .synergy-indicator {
+            background: rgba(155, 89, 182, 0.2);
+            border-left: 3px solid #9b59b6;
+            color: #9b59b6;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .main-button {
+                padding: 30px 15px;
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>⚛️ Particle Clicker</h1>
+    
+    <div class="container">
+        <!-- Main Clicker Panel -->
+        <div class="panel" style="grid-column: 1 / -1;">
+            <button class="main-button" id="clickButton">Click for Particles!</button>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div>
+                    <div class="stats-row">
+                        <span class="stat-label">💫 Particles:</span>
+                        <span class="stat-value" id="particleDisplay">0</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stat-label">⚡ Per Second:</span>
+                        <span class="stat-value" id="psDisplay">0</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="stats-row">
+                        <span class="stat-label">✨ Quarks:</span>
+                        <span class="stat-value gold" id="quarkDisplay">0</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stat-label">× Multiplier:</span>
+                        <span class="stat-value gold" id="quarkMultiplierDisplay">1.00x</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="stats-row">
+                        <span class="stat-label">🌌 Dimensions:</span>
+                        <span class="stat-value purple" id="dimensionDisplay">0</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stat-label">× Multiplier:</span>
+                        <span class="stat-value purple" id="dimensionMultiplierDisplay">1.00x</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="stats-row">
+                        <span class="stat-label">⚛️ Quantum:</span>
+                        <span class="stat-value cyan" id="quantumDisplay">0</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stat-label">× Multiplier:</span>
+                        <span class="stat-value cyan" id="quantumMultiplierDisplay">1.00x</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generators Panel -->
+        <div class="panel">
+            <h2>Generators</h2>
+            <div id="generatorList"></div>
+        </div>
+
+        <!-- Upgrades Panel -->
+        <div class="panel">
+            <h2>Upgrades</h2>
+            <div id="upgradeList"></div>
+        </div>
+
+        <!-- Prestige Panel -->
+        <div class="panel">
+            <h2>Prestige</h2>
+            <div id="prestigeInfo"></div>
+        </div>
+
+        <!-- Achievements Panel -->
+        <div class="panel" style="grid-column: 1 / -1;">
+            <h2>Achievements</h2>
+            <div class="achievement-grid" id="achievementGrid"></div>
+        </div>
+
+        <!-- Footer with Save/Load/Export -->
+        <div class="footer">
+            <button id="saveButton" style="background: linear-gradient(135deg, #27ae60, #229954);">💾 Save</button>
+            <button id="exportButton" style="background: linear-gradient(135deg, #e67e22, #d35400);">📤 Export</button>
+            <button id="importButton" style="background: linear-gradient(135deg, #3498db, #2980b9);">📥 Import</button>
+            <button id="resetButton" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">🔄 Reset</button>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">Export Save</div>
+            <p>Copy this code to save your progress:</p>
+            <textarea id="exportText" readonly></textarea>
+            <div class="modal-buttons">
+                <button id="copyExportButton" style="background: linear-gradient(135deg, #27ae60, #229954);">📋 Copy</button>
+                <button id="closeExportButton">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">Import Save</div>
+            <p>Paste your save code here:</p>
+            <textarea id="importText" placeholder="Paste your exported save code here..."></textarea>
+            <div class="modal-buttons">
+                <button id="importConfirmButton" style="background: linear-gradient(135deg, #27ae60, #229954);">✅ Import</button>
+                <button id="closeImportButton">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const game = {
+            // Main Resources
+            particles: 0,
+            quarks: 0,
+            dimensions: 0,
+            quantum: 0,
+            clickPower: 1,
+            
+            // Generators
+            generators: {
+                emitter: { count: 0, baseCost: 8, production: 1 },
+                resonator: { count: 0, baseCost: 80, production: 10 },
+                accelerator: { count: 0, baseCost: 800, production: 100 },
+                collector: { count: 0, baseCost: 1e8, production: 1000 },
+                matrix: { count: 0, baseCost: 1e14, production: 10000 },
+            },
+            
+            // Upgrades (one-time purchases)
+            upgrades: {
+                // Particle Upgrades
+                clickUpgrade1: { purchased: false, cost: 50, name: "Better Clicking", effect: "Click Power +1", category: "particle" },
+                clickUpgrade2: { purchased: false, cost: 500, name: "Clicking Mastery", effect: "Click Power ×2", category: "particle", requires: "clickUpgrade1" },
+                emitterUpgrade: { purchased: false, cost: 500, name: "Emitter Efficiency", effect: "Emitters ×2", category: "particle" },
+                resonatorUpgrade: { purchased: false, cost: 5000, name: "Resonator Focus", effect: "Resonators ×2", category: "particle" },
+                acceleratorUpgrade: { purchased: false, cost: 50000, name: "Accelerator Boost", effect: "Accelerators ×2", category: "particle" },
+                
+                // Synergy Upgrades (require both particles AND quarks)
+                synergy1: { purchased: false, cost: 100, costType: "quark", name: "Quantum Resonance", effect: "Particle Gen ×1.5 per Dimension", category: "synergy" },
+                synergy2: { purchased: false, cost: 500, costType: "quark", name: "Entanglement Core", effect: "Quark Gen ×2 with high output", category: "synergy", requires: "synergy1" },
+                
+                // Dimension Upgrades
+                dimensionUpgrade: { purchased: false, cost: 50, costType: "dimension", name: "Dimensional Scaling", effect: "All resources ×1.5", category: "dimension" },
+            },
+            
+            // Achievements
+            achievements: {
+                firstSteps: { unlocked: false, icon: "👣", name: "First Steps", description: "Generate 100 particles" },
+                builder: { unlocked: false, icon: "🏗️", name: "Builder", description: "Buy your first generator" },
+                massProducer: { unlocked: false, icon: "🏭", name: "Mass Producer", description: "Generate 1M particles total" },
+                exponentialThinking: { unlocked: false, icon: "📈", name: "Exponential Thinking", description: "Own all 3 base generators" },
+                paradigmShift: { unlocked: false, icon: "🌀", name: "Paradigm Shift", description: "Reach Quark Conversion" },
+                quarkMaster: { unlocked: false, icon: "✨", name: "Quark Master", description: "Accumulate 50 Quarks" },
+                synergyUnlocked: { unlocked: false, icon: "🔗", name: "Synergy Unlocked", description: "Purchase a synergy upgrade" },
+                dimensionalBreakthrough: { unlocked: false, icon: "🌌", name: "Dimensional Breakthrough", description: "Reach Dimensional Fold" },
+                dimensionCollector: { unlocked: false, icon: "🔮", name: "Dimension Collector", description: "Accumulate 10 Dimensions" },
+                trueQuantumState: { unlocked: false, icon: "⚛️", name: "True Quantum State", description: "Reach Quantum Entanglement" },
+                infinityReached: { unlocked: false, icon: "∞", name: "Infinity Reached", description: "Reach 1000 Quantum levels" },
+            },
+            
+            // Totals for achievements
+            totalParticlesEarned: 0,
+        };
+
+        // Helper Functions
+        function formatNumber(num) {
+            if (num < 1000) return Math.floor(num).toString();
+            if (num < 1e6) return (num / 1e3).toFixed(1) + "K";
+            if (num < 1e9) return (num / 1e6).toFixed(1) + "M";
+            if (num < 1e12) return (num / 1e9).toFixed(1) + "B";
+            if (num < 1e15) return (num / 1e12).toFixed(1) + "T";
+            if (num < 1e18) return (num / 1e15).toFixed(1) + "Qa";
+            if (num < 1e21) return (num / 1e18).toFixed(1) + "Qi";
+            return (num / 1e21).toFixed(1) + "Sx";
+        }
+
+        function getGeneratorCost(genName) {
+            const gen = game.generators[genName];
+            return gen.baseCost * Math.pow(1.15, gen.count);
+        }
+
+        function getQuarkMultiplier() {
+            let multiplier = 1 + (game.quarks * 0.15);
+            if (game.upgrades.synergy1.purchased) {
+                multiplier *= (1 + game.dimensions * 0.1);
+            }
+            return Math.max(1, multiplier);
+        }
+
+        function getDimensionMultiplier() {
+            let multiplier = 1 + (game.dimensions * 0.2);
+            if (game.upgrades.dimensionUpgrade.purchased) {
+                multiplier *= 1.5;
+            }
+            return Math.max(1, multiplier);
+        }
+
+        function getQuantumMultiplier() {
+            return 1 + (game.quantum * 0.3);
+        }
+
+        function getProductionPerSecond() {
+            let production = 0;
+            production += game.generators.emitter.count * game.generators.emitter.production;
+            production += game.generators.resonator.count * game.generators.resonator.production;
+            production += game.generators.accelerator.count * game.generators.accelerator.production;
+            production += game.generators.collector.count * game.generators.collector.production;
+            production += game.generators.matrix.count * game.generators.matrix.production;
+            
+            const quarkMult = getQuarkMultiplier();
+            const dimMult = getDimensionMultiplier();
+            const quantumMult = getQuantumMultiplier();
+            
+            production *= quarkMult * dimMult * quantumMult;
+            
+            if (game.upgrades.synergy2.purchased) {
+                production *= 1.5;
+            }
+            
+            return production;
+        }
+
+        function checkAchievements() {
+            // First Steps: 100 particles
+            if (game.totalParticlesEarned >= 100 && !game.achievements.firstSteps.unlocked) {
+                game.achievements.firstSteps.unlocked = true;
+                showNotification("Achievement Unlocked: First Steps!");
+            }
+            
+            // Builder: Own first generator
+            let totalGens = Object.values(game.generators).reduce((sum, gen) => sum + gen.count, 0);
+            if (totalGens > 0 && !game.achievements.builder.unlocked) {
+                game.achievements.builder.unlocked = true;
+                showNotification("Achievement Unlocked: Builder!");
+            }
+            
+            // Mass Producer: 1M particles earned
+            if (game.totalParticlesEarned >= 1e6 && !game.achievements.massProducer.unlocked) {
+                game.achievements.massProducer.unlocked = true;
+                showNotification("Achievement Unlocked: Mass Producer!");
+            }
+            
+            // Exponential Thinking: All 3 base generators
+            if (game.generators.emitter.count > 0 && game.generators.resonator.count > 0 && 
+                game.generators.accelerator.count > 0 && !game.achievements.exponentialThinking.unlocked) {
+                game.achievements.exponentialThinking.unlocked = true;
+                showNotification("Achievement Unlocked: Exponential Thinking!");
+            }
+            
+            // Paradigm Shift: Have Quarks > 0
+            if (game.quarks > 0 && !game.achievements.paradigmShift.unlocked) {
+                game.achievements.paradigmShift.unlocked = true;
+                showNotification("Achievement Unlocked: Paradigm Shift!");
+            }
+            
+            // Quark Master: 50 Quarks
+            if (game.quarks >= 50 && !game.achievements.quarkMaster.unlocked) {
+                game.achievements.quarkMaster.unlocked = true;
+                showNotification("Achievement Unlocked: Quark Master!");
+            }
+            
+            // Synergy Unlocked: Purchase synergy upgrade
+            if ((game.upgrades.synergy1.purchased || game.upgrades.synergy2.purchased) && !game.achievements.synergyUnlocked.unlocked) {
+                game.achievements.synergyUnlocked.unlocked = true;
+                showNotification("Achievement Unlocked: Synergy Unlocked!");
+            }
+            
+            // Dimensional Breakthrough: Have Dimensions > 0
+            if (game.dimensions > 0 && !game.achievements.dimensionalBreakthrough.unlocked) {
+                game.achievements.dimensionalBreakthrough.unlocked = true;
+                showNotification("Achievement Unlocked: Dimensional Breakthrough!");
+            }
+            
+            // Dimension Collector: 10 Dimensions
+            if (game.dimensions >= 10 && !game.achievements.dimensionCollector.unlocked) {
+                game.achievements.dimensionCollector.unlocked = true;
+                showNotification("Achievement Unlocked: Dimension Collector!");
+            }
+            
+            // True Quantum State: Have Quantum > 0
+            if (game.quantum > 0 && !game.achievements.trueQuantumState.unlocked) {
+                game.achievements.trueQuantumState.unlocked = true;
+                showNotification("Achievement Unlocked: True Quantum State!");
+            }
+            
+            // Infinity Reached: 1000 Quantum levels
+            if (game.quantum >= 1000 && !game.achievements.infinityReached.unlocked) {
+                game.achievements.infinityReached.unlocked = true;
+                showNotification("Achievement Unlocked: Infinity Reached! 🎉");
+            }
+        }
+
+        function showNotification(text, type = "success") {
+            const notification = document.createElement("div");
+            notification.className = "notification " + (type === "warning" ? "warning" : "");
+            notification.textContent = text;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 4000);
+        }
+
+        function saveGame() {
+            localStorage.setItem("particleClickerSave", JSON.stringify(game));
+            showNotification("💾 Game saved!");
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem("particleClickerSave");
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                Object.assign(game, loaded);
+                render();
+            }
+        }
+
+        function exportGame() {
+            const exported = JSON.stringify(game);
+            document.getElementById("exportText").value = exported;
+            document.getElementById("exportModal").classList.add("show");
+        }
+
+        function importGame() {
+            document.getElementById("importModal").classList.add("show");
+        }
+
+        function confirmImport() {
+            const text = document.getElementById("importText").value;
+            try {
+                const imported = JSON.parse(text);
+                Object.assign(game, imported);
+                document.getElementById("importModal").classList.remove("show");
+                render();
+                showNotification("✅ Game imported successfully!");
+                saveGame();
+            } catch (e) {
+                showNotification("❌ Invalid save code!", "warning");
+            }
+        }
+
+        function resetGame() {
+            if (confirm("Are you sure? This will reset your progress!")) {
+                localStorage.removeItem("particleClickerSave");
+                location.reload();
+            }
+        }
+
+        function buyGenerator(genName) {
+            const cost = getGeneratorCost(genName);
+            if (game.particles >= cost) {
+                game.particles -= cost;
+                game.generators[genName].count++;
+                render();
+                saveGame();
+            }
+        }
+
+        function buyUpgrade(upgradeName) {
+            const upgrade = game.upgrades[upgradeName];
+            if (upgrade.purchased) return;
+            
+            const cost = upgrade.cost;
+            const costType = upgrade.costType || "particle";
+            
+            let canAfford = false;
+            if (costType === "particle") canAfford = game.particles >= cost;
+            if (costType === "quark") canAfford = game.quarks >= cost;
+            if (costType === "dimension") canAfford = game.dimensions >= cost;
+            
+            if (!canAfford) return;
+            
+            if (costType === "particle") game.particles -= cost;
+            if (costType === "quark") game.quarks -= cost;
+            if (costType === "dimension") game.dimensions -= cost;
+            
+            upgrade.purchased = true;
+            
+            // Apply upgrade effects
+            if (upgradeName === "clickUpgrade1") game.clickPower += 1;
+            if (upgradeName === "clickUpgrade2") game.clickPower *= 2;
+            if (upgradeName === "emitterUpgrade") game.generators.emitter.production *= 2;
+            if (upgradeName === "resonatorUpgrade") game.generators.resonator.production *= 2;
+            if (upgradeName === "acceleratorUpgrade") game.generators.accelerator.production *= 2;
+            
+            render();
+            saveGame();
+        }
+
+        function prestigeQuarkConversion() {
+            const quarkGain = Math.floor(Math.sqrt(game.totalParticlesEarned / 1e8));
+            if (quarkGain > 0 || confirm("No quarks to gain. Continue anyway?")) {
+                game.quarks += quarkGain;
+                game.particles = 0;
+                game.generators.emitter.count = 0;
+                game.generators.resonator.count = 0;
+                game.generators.accelerator.count = 0;
+                game.clickPower = 1;
+                game.upgrades.clickUpgrade1.purchased = false;
+                game.upgrades.clickUpgrade2.purchased = false;
+                game.upgrades.emitterUpgrade.purchased = false;
+                game.upgrades.resonatorUpgrade.purchased = false;
+                game.upgrades.acceleratorUpgrade.purchased = false;
+                game.totalParticlesEarned = 0;
+                render();
+                saveGame();
+                showNotification(`✨ Prestigious! +${quarkGain} Quarks`);
+            }
+        }
+
+        function prestigeDimensionalFold() {
+            const dimensionGain = Math.floor(Math.sqrt(game.quarks / 10));
+            if (dimensionGain > 0 || confirm("No dimensions to gain. Continue anyway?")) {
+                game.dimensions += dimensionGain;
+                game.quarks = 0;
+                game.particles = 0;
+                game.generators.emitter.count = 0;
+                game.generators.resonator.count = 0;
+                game.generators.accelerator.count = 0;
+                game.generators.collector.count = 0;
+                game.clickPower = 1;
+                Object.keys(game.upgrades).forEach(key => {
+                    if (game.upgrades[key].category === "particle" || game.upgrades[key].category === "synergy") {
+                        game.upgrades[key].purchased = false;
+                    }
+                });
+                game.totalParticlesEarned = 0;
+                render();
+                saveGame();
+                showNotification(`🌌 Dimensional Breakthrough! +${dimensionGain} Dimensions`);
+            }
+        }
+
+        function prestigeQuantumEntanglement() {
+            const quantumGain = Math.floor(Math.sqrt(game.dimensions / 2));
+            if (quantumGain > 0 || confirm("No quantum to gain. Continue anyway?")) {
+                game.quantum += quantumGain;
+                game.dimensions = 0;
+                game.quarks = 0;
+                game.particles = 0;
+                game.generators.emitter.count = 0;
+                game.generators.resonator.count = 0;
+                game.generators.accelerator.count = 0;
+                game.generators.collector.count = 0;
+                game.generators.matrix.count = 0;
+                game.clickPower = 1;
+                Object.keys(game.upgrades).forEach(key => {
+                    if (game.upgrades[key].category !== "dimension") {
+                        game.upgrades[key].purchased = false;
+                    }
+                });
+                game.totalParticlesEarned = 0;
+                render();
+                saveGame();
+                showNotification(`⚛️ Quantum Entanglement! +${quantumGain} Quantum Levels`);
+            }
+        }
+
+        function render() {
+            // Update stats
+            document.getElementById("particleDisplay").textContent = formatNumber(game.particles);
+            document.getElementById("psDisplay").textContent = formatNumber(getProductionPerSecond()) + "/s";
+            document.getElementById("quarkDisplay").textContent = formatNumber(game.quarks);
+            document.getElementById("quarkMultiplierDisplay").textContent = getQuarkMultiplier().toFixed(2) + "x";
+            document.getElementById("dimensionDisplay").textContent = formatNumber(game.dimensions);
+            document.getElementById("dimensionMultiplierDisplay").textContent = getDimensionMultiplier().toFixed(2) + "x";
+            document.getElementById("quantumDisplay").textContent = formatNumber(game.quantum);
+            document.getElementById("quantumMultiplierDisplay").textContent = getQuantumMultiplier().toFixed(2) + "x";
+
+            // Render generators
+            let genHTML = '<div class="section">';
+            Object.entries(game.generators).forEach(([genName, gen]) => {
+                const cost = getGeneratorCost(genName);
+                const canAfford = game.particles >= cost;
+                const displayName = {
+                    emitter: "Emitter",
+                    resonator: "Resonator",
+                    accelerator: "Accelerator",
+                    collector: "Quark Collector",
+                    matrix: "Tensor Matrix",
+                }[genName];
+                
+                const production = gen.production * (
+                    (genName === "collector" ? getQuarkMultiplier() : 1) *
+                    getDimensionMultiplier() *
+                    getQuantumMultiplier()
+                );
+                
+                genHTML += `<button onclick="buyGenerator('${genName}')" ${!canAfford ? "disabled" : ""} style="padding: 8px; margin-bottom: 8px;">
+                    <div class="generator-item">
+                        <div class="generator-header">
+                            <span class="generator-name">${displayName}</span>
+                            <span class="generator-count">${gen.count}</span>
+                        </div>
+                        <div class="generator-production">+${formatNumber(production)}/s</div>
+                        <div class="cost">Cost: ${formatNumber(cost)} 💫</div>
+                    </div>
+                </button>`;
+            });
+            genHTML += '</div>';
+            document.getElementById("generatorList").innerHTML = genHTML;
+
+            // Render upgrades
+            let upgradeHTML = '';
+            
+            // Particle upgrades
+            upgradeHTML += '<div class="section"><div class="section-title">Particle Upgrades</div>';
+            const particleUpgrades = Object.entries(game.upgrades).filter(([k, v]) => v.category === "particle");
+            particleUpgrades.forEach(([name, upgrade]) => {
+                if (upgrade.requires && !game.upgrades[upgrade.requires].purchased) return;
+                upgradeHTML += `<button onclick="buyUpgrade('${name}')" ${upgrade.purchased ? "disabled" : ""} style="text-align: left; padding: 8px; margin-bottom: 0;">
+                    <div class="upgrade-item ${upgrade.purchased ? "purchased" : ""}">
+                        <div class="upgrade-name">${upgrade.name}</div>
+                        <div class="upgrade-desc">${upgrade.effect}</div>
+                        ${!upgrade.purchased ? `<div class="cost">Cost: ${formatNumber(upgrade.cost)} 💫</div>` : '<div class="cost">✅ Purchased</div>'}
+                    </div>
+                </button>`;
+            });
+            upgradeHTML += '</div>';
+            
+            // Synergy upgrades
+            upgradeHTML += '<div class="section"><div class="section-title">Synergy Upgrades</div>';
+            const synergyUpgrades = Object.entries(game.upgrades).filter(([k, v]) => v.category === "synergy");
+            synergyUpgrades.forEach(([name, upgrade]) => {
+                if (upgrade.requires && !game.upgrades[upgrade.requires].purchased) return;
+                const canAfford = upgrade.costType === "quark" ? game.quarks >= upgrade.cost : game.particles >= upgrade.cost;
+                upgradeHTML += `<button onclick="buyUpgrade('${name}')" ${upgrade.purchased ? "disabled" : ""}${!canAfford ? " disabled" : ""} style="text-align: left; padding: 8px; margin-bottom: 0;">
+                    <div class="upgrade-item ${upgrade.purchased ? "purchased" : ""}">
+                        <div class="upgrade-name">${upgrade.name}</div>
+                        <div class="upgrade-desc">${upgrade.effect}</div>
+                        ${!upgrade.purchased ? `<div class="cost">Cost: ${formatNumber(upgrade.cost)} ${upgrade.costType === "quark" ? "✨" : "💫"}</div>` : '<div class="cost">✅ Purchased</div>'}
+                    </div>
+                </button>`;
+            });
+            upgradeHTML += '</div>';
+            
+            // Dimension upgrades
+            upgradeHTML += '<div class="section"><div class="section-title">Dimension Upgrades</div>';
+            const dimensionUpgrades = Object.entries(game.upgrades).filter(([k, v]) => v.category === "dimension");
+            dimensionUpgrades.forEach(([name, upgrade]) => {
+                const canAfford = game.dimensions >= upgrade.cost;
+                upgradeHTML += `<button onclick="buyUpgrade('${name}')" ${upgrade.purchased ? "disabled" : ""}${!canAfford ? " disabled" : ""} style="text-align: left; padding: 8px; margin-bottom: 0;">
+                    <div class="upgrade-item ${upgrade.purchased ? "purchased" : ""}">
+                        <div class="upgrade-name">${upgrade.name}</div>
+                        <div class="upgrade-desc">${upgrade.effect}</div>
+                        ${!upgrade.purchased ? `<div class="cost">Cost: ${formatNumber(upgrade.cost)} 🌌</div>` : '<div class="cost">✅ Purchased</div>'}
+                    </div>
+                </button>`;
+            });
+            upgradeHTML += '</div>';
+            
+            document.getElementById("upgradeList").innerHTML = upgradeHTML;
+
+            // Render prestige info
+            let prestigeHTML = '<div class="section">';
+            
+            const quarkGain = Math.floor(Math.sqrt(game.totalParticlesEarned / 1e10));
+            prestigeHTML += `
+                <div style="margin-bottom: 15px;">
+                    <div class="section-title">⭐ Quark Conversion (Tier 1)</div>
+                    <div style="font-size: 0.9em; margin-bottom: 8px;">
+                        <div>Total Particles Earned: ${formatNumber(game.totalParticlesEarned)}</div>
+                        <div style="color: #f39c12;">Quarks to Gain: ${quarkGain}</div>
+                    </div>
+                    <button class="prestige-button ${quarkGain > 0 ? "available" : ""}" onclick="prestigeQuarkConversion()">Convert to Quarks</button>
+                </div>
+            `;
+            
+            const dimensionGain = Math.floor(Math.sqrt(game.quarks / 10));
+            prestigeHTML += `
+                <div style="margin-bottom: 15px;">
+                    <div class="section-title">🌌 Dimensional Fold (Tier 2)</div>
+                    <div style="font-size: 0.9em; margin-bottom: 8px;">
+                        <div>Total Quarks: ${formatNumber(game.quarks)}</div>
+                        <div style="color: #f39c12;">Dimensions to Gain: ${dimensionGain}</div>
+                    </div>
+                    <button class="prestige-button ${dimensionGain > 0 ? "available" : ""}" ${game.quarks === 0 ? "disabled" : ""} onclick="prestigeDimensionalFold()">Unlock Dimensions</button>
+                </div>
+            `;
+            
+            const quantumGain = Math.floor(Math.sqrt(game.dimensions / 2));
+            prestigeHTML += `
+                <div>
+                    <div class="section-title">⚛️ Quantum Entanglement (Tier 3)</div>
+                    <div style="font-size: 0.9em; margin-bottom: 8px;">
+                        <div>Total Dimensions: ${formatNumber(game.dimensions)}</div>
+                        <div style="color: #f39c12;">Quantum to Gain: ${quantumGain}</div>
+                    </div>
+                    <button class="prestige-button ${quantumGain > 0 ? "available" : ""}" ${game.dimensions === 0 ? "disabled" : ""} onclick="prestigeQuantumEntanglement()">Achieve Quantum</button>
+                </div>
+            `;
+            
+            prestigeHTML += '</div>';
+            document.getElementById("prestigeInfo").innerHTML = prestigeHTML;
+
+            // Render achievements
+            let achievementHTML = '';
+            Object.entries(game.achievements).forEach(([key, ach]) => {
+                achievementHTML += `
+                    <div class="achievement ${ach.unlocked ? "unlocked" : ""}">
+                        <div class="achievement-icon">${ach.icon}</div>
+                        <div class="achievement-name">${ach.name}</div>
+                        <div class="achievement-desc">${ach.description}</div>
+                    </div>
+                `;
+            });
+            document.getElementById("achievementGrid").innerHTML = achievementHTML;
+        }
+
+        // Game Loop
+        function gameLoop() {
+            const production = getProductionPerSecond();
+            const deltaTime = 0.1; // 100ms
+            game.particles += production * deltaTime;
+            game.totalParticlesEarned += production * deltaTime;
+            checkAchievements();
+            render();
+        }
+
+        // Event Listeners
+        document.getElementById("clickButton").addEventListener("click", () => {
+            game.particles += game.clickPower;
+            game.totalParticlesEarned += game.clickPower;
+            checkAchievements();
+            render();
+            saveGame();
+        });
+
+        document.getElementById("saveButton").addEventListener("click", saveGame);
+        document.getElementById("exportButton").addEventListener("click", exportGame);
+        document.getElementById("importButton").addEventListener("click", importGame);
+        document.getElementById("resetButton").addEventListener("click", resetGame);
+
+        document.getElementById("copyExportButton").addEventListener("click", () => {
+            document.getElementById("exportText").select();
+            document.execCommand("copy");
+            showNotification("📋 Copied to clipboard!");
+        });
+
+        document.getElementById("closeExportButton").addEventListener("click", () => {
+            document.getElementById("exportModal").classList.remove("show");
+        });
+
+        document.getElementById("closeImportButton").addEventListener("click", () => {
+            document.getElementById("importModal").classList.remove("show");
+        });
+
+        document.getElementById("importConfirmButton").addEventListener("click", confirmImport);
+
+        // Close modals on background click
+        document.getElementById("exportModal").addEventListener("click", (e) => {
+            if (e.target === document.getElementById("exportModal")) {
+                document.getElementById("exportModal").classList.remove("show");
+            }
+        });
+
+        document.getElementById("importModal").addEventListener("click", (e) => {
+            if (e.target === document.getElementById("importModal")) {
+                document.getElementById("importModal").classList.remove("show");
+            }
+        });
+
+        // Initialize
+        loadGame();
+        render();
+        setInterval(gameLoop, 100);
+        setInterval(saveGame, 5000); // Auto-save every 5 seconds
+    </script>
+</body>
+</html>
