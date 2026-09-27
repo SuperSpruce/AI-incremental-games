@@ -1,0 +1,12 @@
+Create a fun incremental browser game inspired by Antimatter Dimensions and Cookie Clicker.
+
+The game should include a strong sense of progression, paradigm shifts, and at least one prestige layer.
+The game should be balanced and fun to play as a human, encouraging player decision-making.
+Synergies between game mechanics are encouraged.
+The game should have achievements that mark a player's progression or introduce a mini-challenge. All achievements should be achievable once the player reaches the end of the game, with the final achievement being easy to get with a little end-game grinding.
+
+The game should be implemented with HTML, CSS, and vanilla JS only. No external libraries are allowed.
+All code changes must happen within the directory containing Planning.md. You can change this file to coordinate your plans.
+The game must include automatic saving to localStorage, with an import/export option.
+
+Ideally, you should be creative in making the game. A longer, more fleshed-out game is better, but each section should have some degree of polish so that the game doesn't feel like a mess.
